@@ -60,16 +60,15 @@ public class Artikl implements Model {
     @Override
     public void create() {
         try {
-            PreparedStatement stmnt = Database.CONNECTION.prepareStatement(
-                    "INSERT INTO artikli VALUES (null, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
+            Baza DB = new Baza();
+            PreparedStatement stmnt =DB.exec("INSERT INTO artikli VALUES (null, ?, ?, ?)");    
+           
             stmnt.setString(1, this.naziv);
             stmnt.setInt(2, this.cijena);
             stmnt.setString(3, this.urll);
             
             stmnt.executeUpdate();
-
+            DB.close();
         } catch (SQLException e) {
             System.out.println("Greska prilikom stvaranja korisnika u bazi:"
                     + e.getMessage());

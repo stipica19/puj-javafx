@@ -14,16 +14,14 @@ import javafx.collections.ObservableList;
 
 
 public class RacunModel implements Model{
-     static final String DATABASE_URL = "jdbc:mysql://localhost:3306/fsre-puj?zeroDateTimeBehavior=convertToNull";
-     static final String USERNAME = "root";
-     static final String PASSWORD = "";
+ 
 
     ObservableList<RacunModel> lista  = FXCollections.observableArrayList();
    
     public  SimpleIntegerProperty sifra;
     public  SimpleStringProperty ime;
     public  SimpleIntegerProperty cijena;
-    public SimpleIntegerProperty kol;
+    public  SimpleIntegerProperty kol;
     public  SimpleIntegerProperty korisnik;
    
 
@@ -65,10 +63,8 @@ public class RacunModel implements Model{
 public  static ObservableList<RacunModel> listaa () throws SQLException {
                  ObservableList<RacunModel> lista = FXCollections.observableArrayList();
          
-                 Statement statement = null;
-                 java.sql.Connection con = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 statement = con.createStatement();
-                 ResultSet rs = statement.executeQuery("SELECT * FROM racun");
+                 Baza DB = new Baza();
+                 ResultSet rs = DB.select("SELECT * FROM racun");
         
         try {
             while (rs.next()) {
@@ -95,10 +91,8 @@ public  static ObservableList<RacunModel> listaa () throws SQLException {
     public void update() {
        
          try { 
-           java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-           PreparedStatement upit = Database.CONNECTION.prepareStatement("UPDATE racun SET  cijena=?, kol=? WHERE racun_id=?",
-                   Statement.RETURN_GENERATED_KEYS);
+           Baza DB = new Baza();
+           PreparedStatement upit = DB.exec("UPDATE racun SET  cijena=?, kol=? WHERE racun_id=?");
              
             upit.setInt(1,this.getCijena());
             upit.setInt(2,this.getKol());
@@ -118,9 +112,11 @@ public  static ObservableList<RacunModel> listaa () throws SQLException {
     //Stvaranje racuna tj. artikla koji ima kolicinu = 1
     @Override
     public void create() {
-         try {
-             try (PreparedStatement stmnt = Database.CONNECTION.prepareStatement(
-                     "INSERT INTO racun VALUES (null,?,?,?,?)",Statement.RETURN_GENERATED_KEYS)) {
+        
+             
+             try {
+                 Baza DB = new Baza();
+                 PreparedStatement stmnt = DB.exec("INSERT INTO racun VALUES (null,?,?,?,?)");
                  int a= this.getKol()+1;
                  
                  
@@ -129,19 +125,20 @@ public  static ObservableList<RacunModel> listaa () throws SQLException {
                  stmnt.setInt(3,this.getCijena());
                  stmnt.setInt(4,a);
                  stmnt.executeUpdate();
+                 System.out.println("Uspjesno dodan artikal na racun :D");
              }
-             System.out.println("Uspjesno dodan artikal na racun :D");
-         } catch (SQLException ex) {
+            
+          catch (SQLException ex) {
              Logger.getLogger(RacunModel.class.getName()).log(Level.SEVERE, null, ex);
          }
-    }
+}
+    
      @Override
 public void delete () {
  try {
-        java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+         Baza DB = new Baza();
                  
-        PreparedStatement upit = Database.CONNECTION.prepareStatement("DELETE FROM racun WHERE racun_id=?",
-               Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement upit = DB.exec("DELETE FROM racun WHERE racun_id=?");
         upit.setInt(1, this.getSifra());
         upit.executeUpdate();
         } catch (SQLException ex) {

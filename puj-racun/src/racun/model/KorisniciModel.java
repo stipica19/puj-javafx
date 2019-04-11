@@ -11,13 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class KorisniciModel {
-     static final String DATABASE_URL = "jdbc:mysql://localhost:3306/fsre-puj?zeroDateTimeBehavior=convertToNull";
-     static final String USERNAME = "root";
-     static final String PASSWORD = "";
-
-   
-     private java.sql.Connection connection;
-     private Statement statement;
+    
     
  SimpleIntegerProperty id = new SimpleIntegerProperty();
  SimpleStringProperty ime = new SimpleStringProperty();
@@ -63,12 +57,10 @@ public class KorisniciModel {
     }
    public static ObservableList<KorisniciModel> listaKorisnika () throws SQLException {
          ObservableList<KorisniciModel> lista = FXCollections.observableArrayList();
-                Statement statement = null;
-                java.sql.Connection con = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                statement = con.createStatement();
+                 Baza DB = new Baza();
             
-                String upit ="SELECT * FROM korisnik";
-                 ResultSet rs = statement.executeQuery(upit);
+                 String upit ="SELECT * FROM korisnik";
+                 ResultSet rs = DB.select(upit);
        
         try {
             while (rs.next()) {
@@ -85,10 +77,9 @@ public class KorisniciModel {
     }
    public void uredi () {
  try {
-                   java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-           PreparedStatement upit = Database.CONNECTION.prepareStatement("UPDATE korisnik SET korisnicko_ime=?,lozinka=?,uloga=? WHERE id=?",
-                   Statement.RETURN_GENERATED_KEYS);
+                 Baza DB = new Baza();
+           PreparedStatement upit = DB.exec("UPDATE korisnik SET korisnicko_ime=?,lozinka=?,uloga=? WHERE id=?");
+                  
         
             upit.setString(1, this.getIme());
             upit.setString(2, this.getSifra());
@@ -96,6 +87,7 @@ public class KorisniciModel {
             upit.setInt(4, this.getId());
            
             upit.executeUpdate();
+            DB.close();
             } catch (SQLException ex) {
             System.out.println("Greška prilikom spasavanja korisnika u bazu:" + ex.getMessage());
  
@@ -104,11 +96,11 @@ public class KorisniciModel {
   
    public void brisi() {
  try {
-        java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-       PreparedStatement upit = Database.CONNECTION.prepareStatement("DELETE FROM korisnik WHERE id=?",Statement.RETURN_GENERATED_KEYS);
+                 Baza DB = new Baza();
+       PreparedStatement upit = DB.exec("DELETE FROM korisnik WHERE id=?");
         upit.setInt(1, this.getId());
         upit.executeUpdate();
+        DB.close();
         } catch (SQLException ex) {
         System.out.println("Greška prilikom spasavanja korisnika u bazu:" + ex.getMessage());
  }

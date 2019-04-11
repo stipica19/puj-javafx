@@ -9,15 +9,7 @@ import java.sql.Statement;
 
 public class Korisnik implements Model {
     
-     static final String DATABASE_URL = "jdbc:mysql://localhost:3306/fsre-puj?zeroDateTimeBehavior=convertToNull";
-     static final String USERNAME = "root";
-     static final String PASSWORD = "";
-
-   
-     private java.sql.Connection connection;
-     private Statement statement;
-    
-    
+      
     private int id;
     private String naziv;
     private String sifra;
@@ -71,10 +63,9 @@ public class Korisnik implements Model {
     @Override
     public void create() {
         try {
-            PreparedStatement stmnt = Database.CONNECTION.prepareStatement(
-                    "INSERT INTO korisnik VALUES (null, ?, ?,?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
+            Baza DB = new Baza();
+            PreparedStatement stmnt = DB.exec("INSERT INTO korisnik VALUES (null, ?, ?,?)");  
+          
             stmnt.setString(1, this.naziv);
             stmnt.setString(2, this.sifra); 
             stmnt.setString(3, this.uloga); 

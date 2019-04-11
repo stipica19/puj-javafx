@@ -50,7 +50,7 @@ public class ArtikliController implements Initializable {
     ArtikliModel odaberiArtikl;
    
   
-    public void dodajAction (ActionEvent e) throws SQLException {
+    public void dodajAction (ActionEvent e) throws SQLException, Exception {
      
         String naziv = this.nazivTxt.getText();
         Integer cijena = Integer.parseInt(this.cijenaTxt.getText());
@@ -60,7 +60,7 @@ public class ArtikliController implements Initializable {
         
         Artikl a = new Artikl(0, naziv,cijena,link);
         a.create();
-         ObservableList<ArtikliModel> data = ArtikliModel.listaArtikala();
+        ObservableList<ArtikliModel> data = ArtikliModel.listaArtikala();
                 this.artiklTbl.setItems(data);
 
     }
@@ -93,7 +93,7 @@ public class ArtikliController implements Initializable {
     
     //Brisanje artikala
      @FXML
-    void deleteAkcija(ActionEvent event) {
+    void deleteAkcija(ActionEvent event) throws Exception {
                 if (this.odaberiArtikl != null) {
             try {
                 this.odaberiArtikl.brisi();
@@ -107,7 +107,7 @@ public class ArtikliController implements Initializable {
 
     //Urednjivanje artikala
     @FXML
-    void urediAkcija(ActionEvent event) {
+    void urediAkcija(ActionEvent event) throws Exception {
         try {
             this.odaberiArtikl.setIme(this.nazivTxt.getText());
             this.odaberiArtikl.setCijena(Integer.parseInt(this.cijenaTxt.getText()));
@@ -135,16 +135,19 @@ public class ArtikliController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-  try {
-            ObservableList<ArtikliModel> data = ArtikliModel.listaArtikala();
+  
+            ObservableList<ArtikliModel> data = null;
+        try {
+            data = ArtikliModel.listaArtikala();
+        } catch (Exception ex) {
+            Logger.getLogger(ArtikliController.class.getName()).log(Level.SEVERE, null, ex);
+        }
             nazivArtikla.setCellValueFactory(new PropertyValueFactory<>("Ime"));
             cijenaArtikla.setCellValueFactory(new PropertyValueFactory<>("Cijena"));
             urlArtikla.setCellValueFactory(new PropertyValueFactory<>("Url"));
             
             artiklTbl.setItems(data);
-        } catch (SQLException ex) {
-            Logger.getLogger(KorisnikController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
     }
   
     

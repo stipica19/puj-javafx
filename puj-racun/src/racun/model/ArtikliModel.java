@@ -1,24 +1,15 @@
 package racun.model;
 
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ArtikliModel {
-    static final String DATABASE_URL = "jdbc:mysql://localhost:3306/fsre-puj?zeroDateTimeBehavior=convertToNull";
-     static final String USERNAME = "root";
-     static final String PASSWORD = "";
-
-   
-     private java.sql.Connection connection;
-     private Statement statement;
-    
+      
   SimpleIntegerProperty id = new SimpleIntegerProperty();
   SimpleStringProperty ime = new SimpleStringProperty();
   SimpleIntegerProperty cijena = new SimpleIntegerProperty();
@@ -61,14 +52,12 @@ public class ArtikliModel {
         this.cijena.set(cijena);
     }
  
-   public static ObservableList<ArtikliModel> listaArtikala () throws SQLException {
+   public static ObservableList<ArtikliModel> listaArtikala () throws SQLException, Exception {
          ObservableList<ArtikliModel> lista = FXCollections.observableArrayList();
-                Statement statement = null;
-                java.sql.Connection con = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                statement = con.createStatement();
-            
+                Baza DB = new Baza();
+                
                 String upit ="SELECT * FROM artikli";
-                ResultSet rs = statement.executeQuery(upit);
+                ResultSet rs = DB.select(upit);
        
         try {
             while (rs.next()) {
@@ -81,15 +70,16 @@ public class ArtikliModel {
         } catch (SQLException ex) {
             System.out.println("Nastala je greška prilikom iteriranja: " + ex.getMessage());
         }
+        DB.close();
         return lista;
+        
     }
    
  public void uredi () {
     try {
-           java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-           PreparedStatement upit = Database.CONNECTION.prepareStatement("UPDATE artikli SET naziv=?,cijena=? ,slika=? WHERE artikal_id=?",
-                   Statement.RETURN_GENERATED_KEYS);
+            Baza DB = new Baza(); 
+           PreparedStatement upit =DB.exec("UPDATE artikli SET naziv=?,cijena=? ,slika=? WHERE artikal_id=?");
+            
         
             upit.setString(1, this.getIme());
             upit.setInt(2, this.getCijena());
@@ -97,6 +87,7 @@ public class ArtikliModel {
             upit.setInt(4, this.getId());
            
             upit.executeUpdate();
+            DB.close();
             } catch (SQLException ex) {
             System.out.println("Greška prilikom azuriranja artikla u bazu:" + ex.getMessage());
  
@@ -104,9 +95,8 @@ public class ArtikliModel {
    }
    public void brisi () {
  try {
-        java.sql.Connection conn = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-       PreparedStatement upit = Database.CONNECTION.prepareStatement("DELETE FROM artikli WHERE artikal_id=?",Statement.RETURN_GENERATED_KEYS);
+            Baza DB = new Baza();      
+       PreparedStatement upit = DB.exec("DELETE FROM artikli WHERE artikal_id=?");
         upit.setInt(1, this.getId());
         upit.executeUpdate();
         } catch (SQLException ex) {

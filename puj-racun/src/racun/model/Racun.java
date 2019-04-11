@@ -1,27 +1,16 @@
 package racun.model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-
-
 import javafx.scene.Cursor;
-
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Hyperlink;
@@ -32,7 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
-import javafx.stage.FileChooser;
+
 import racun.controller.KorisnikController;
 
 
@@ -48,19 +37,13 @@ public class Racun {
 
     @FXML private TilePane libraryTilePane;
     @FXML private TextField kolicina;
-
-    @FXML private Button spremiBtn;
+    @FXML private Button printRacuna;
     
     @FXML private Button minuKol;
 
     @FXML private Button plusKol;
     @FXML private Button izbrisiBtn;
-    
-     static final String DATABASE_URL = "jdbc:mysql://localhost:3306/fsre-puj?zeroDateTimeBehavior=convertToNull";
-     static final String USERNAME = "root";
-     static final String PASSWORD = "";
-     private Connection connection;
-     private Statement statement;
+
      public static int br;
      public int cena;
      RacunModel odaberiArtikl;
@@ -68,6 +51,7 @@ public class Racun {
      int c=0;
      int cijena=0;
      int id=0;
+ 
     
     public int getBr() {
         return br;
@@ -82,18 +66,17 @@ public class Racun {
     @FXML
     void printajRacun(ActionEvent event) throws SQLException {
                 System.out.println("Ukupno za platit: "+cijena);
-                java.sql.Connection con = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-                 
-                Statement stmt = con.createStatement();
+                Baza DB = new Baza();                 
+            
                 String sql = "DELETE FROM racun";
-                int deleteCount = stmt.executeUpdate(sql);
-                sql = "DELETE FROM racun WHERE";
-                PreparedStatement pstmt = con.prepareStatement(sql);
+           
+                PreparedStatement pstmt = DB.exec(sql);
+                pstmt.executeUpdate(); 
                 racunTablica.getItems().clear();
                 ukupnaCijena.clear();
                 cijena=0;
                 
-                
+                DB.close();
     }
     @FXML
     public void selectArtikl (Event e) {
@@ -103,8 +86,6 @@ public class Racun {
             cena = this.odaberiArtikl.getCijena();
             cena=cena/this.odaberiArtikl.getKol();
             System.out.println("Cena"+cena);
-            
-            
             
     }
     @FXML
@@ -127,8 +108,6 @@ public class Racun {
         }
     }
     
-      
-
     @FXML
     void izbrisiArtikl(ActionEvent event) {
          if (this.odaberiArtikl != null) {
@@ -143,8 +122,7 @@ public class Racun {
         
     }
 
-    
-    
+   
     @FXML
     void povecanjeKolicine(ActionEvent event) {
         try {
@@ -181,17 +159,15 @@ public class Racun {
     public void initialize() throws SQLException {
         
         try {
-            Statement statement = null;
-            java.sql.Connection con = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-            statement = con.createStatement();
-             
+            Baza DB = new Baza();
+            
             Racun k = new Racun();
             id=k.getBr();
             System.out.println("ID logiranog korisnika: "+id);
                
                
             String select ="SELECT * FROM artikli";
-            ResultSet rs = statement.executeQuery(select);
+            ResultSet rs = DB.select(select);
                             
                 while(rs.next()) {
                     String nazivArtikla = rs.getString("naziv");
@@ -242,24 +218,13 @@ public class Racun {
                             System.out.println("Greska prilikom naplacivanja:"+ e.getMessage());
                         }
                     });
+                   
                 }  
+                 DB.close();
         }
     
         catch (SQLException sqlException) {
-        } finally {
-            try {
-                if(statement != null) {
-                    connection.close();
-                }
-            } catch (SQLException sqlException) {
-            } 
-            try {
-                if(connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException sqlException) {
-            } 
-        }  
+        }   
    
     }
 

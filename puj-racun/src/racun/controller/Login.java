@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -32,8 +33,11 @@ public class Login implements Initializable {
     PasswordField lozinkaTxt;
     
     public static int role;
+    @FXML
+    private Button prijaviseBtn;
 
     
+    @FXML
     public void prijavise (ActionEvent e) throws SQLException, IOException {
         String kime = kimeTxt.getText();
         String lozinka = lozinkaTxt.getText();
